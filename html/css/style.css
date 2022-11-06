@@ -127,6 +127,23 @@ body {
   background: rgba(255, 255, 255, 0.25);
 }
 
+.active-talker-container {
+  display: block;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+}
+
+#activeTalker {
+  display: block;
+  position: absolute;
+  left: 100px;
+  top: 100px;
+  width: 100px;
+  height: 100px;
+  background-color: red;
+}
+
 .onoff button {
   padding: 40px 55px;
   opacity: .0;

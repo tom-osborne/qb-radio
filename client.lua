@@ -45,7 +45,7 @@ local function connecttoradio(channel)
 end
 
 local function closeEvent()
-	TriggerEvent("InteractSound_CL:PlayOnOne","click",0.6)
+    TriggerEvent("InteractSound_CL:PlayOnOne", "click", 0.6)
 end
 
 local function leaveradio()
@@ -58,20 +58,20 @@ local function leaveradio()
 end
 
 local function toggleRadioAnimation(pState)
-	LoadAnimDic("cellphone@")
-	if pState then
-		TriggerEvent("attachItemRadio","radio01")
-		TaskPlayAnim(PlayerPedId(), "cellphone@", "cellphone_text_read_base", 2.0, 3.0, -1, 49, 0, 0, 0, 0)
-		radioProp = CreateObject(`prop_cs_hand_radio`, 1.0, 1.0, 1.0, 1, 1, 0)
-		AttachEntityToEntity(radioProp, PlayerPedId(), GetPedBoneIndex(PlayerPedId(), 57005), 0.14, 0.01, -0.02, 110.0, 120.0, -15.0, 1, 0, 0, 0, 2, 1)
-	else
-		StopAnimTask(PlayerPedId(), "cellphone@", "cellphone_text_read_base", 1.0)
-		ClearPedTasks(PlayerPedId())
-		if radioProp ~= 0 then
-			DeleteObject(radioProp)
-			radioProp = 0
-		end
-	end
+    LoadAnimDic("cellphone@")
+    if pState then
+        TriggerEvent("attachItemRadio","radio01")
+        TaskPlayAnim(PlayerPedId(), "cellphone@", "cellphone_text_read_base", 2.0, 3.0, -1, 49, 0, false, false, false)
+        radioProp = CreateObject(`prop_cs_hand_radio`, 1.0, 1.0, 1.0, true, true, false)
+        AttachEntityToEntity(radioProp, PlayerPedId(), GetPedBoneIndex(PlayerPedId(), 57005), 0.14, 0.01, -0.02, 110.0, 120.0, -15.0, true, false, false, false, 2, true)
+    else
+        StopAnimTask(PlayerPedId(), "cellphone@", "cellphone_text_read_base", 1.0)
+        ClearPedTasks(PlayerPedId())
+        if radioProp ~= 0 then
+            DeleteObject(radioProp)
+            radioProp = 0
+        end
+    end
 end
 
 local function toggleRadio(toggle)
@@ -145,7 +145,22 @@ RegisterNetEvent('qb-radio:onRadioDrop', function()
     end
 end)
 
+RegisterNetEvent('pma-voice:radioActive', function(radioTalking)
+    local usingRadio = radioTalking
+    if usingRadio then
+        TriggerEvent('QBCore:Notify', "Started Talking!", "success")
+        SendNUIMessage({type = "showActiveTalker"})
+    else
+        TriggerEvent('QBCore:Notify', "Stopped Talking!", "error")
+        SendNUIMessage({type = "hideActiveTalker"})
+    end
+end)
+
 -- NUI
+RegisterNUICallback('getUIConfig', function(_, cb)
+    cb(Config.ActiveTalkerConfig)
+end)
+
 RegisterNUICallback('joinRadio', function(data, cb)
     local rchannel = tonumber(data.channel)
     if rchannel ~= nil then
@@ -182,24 +197,24 @@ RegisterNUICallback('leaveRadio', function(_, cb)
 end)
 
 RegisterNUICallback("volumeUp", function(_, cb)
-	if RadioVolume <= 95 then
-		RadioVolume = RadioVolume + 5
-		QBCore.Functions.Notify(Config.messages["volume_radio"] .. RadioVolume, "success")
-		exports["pma-voice"]:setRadioVolume(RadioVolume)
-	else
-		QBCore.Functions.Notify(Config.messages["decrease_radio_volume"], "error")
-	end
+    if RadioVolume <= 95 then
+        RadioVolume = RadioVolume + 5
+        QBCore.Functions.Notify(Config.messages["volume_radio"] .. RadioVolume, "success")
+        exports["pma-voice"]:setRadioVolume(RadioVolume)
+    else
+        QBCore.Functions.Notify(Config.messages["decrease_radio_volume"], "error")
+    end
     cb('ok')
 end)
 
 RegisterNUICallback("volumeDown", function(_, cb)
-	if RadioVolume >= 10 then
-		RadioVolume = RadioVolume - 5
-		QBCore.Functions.Notify(Config.messages["volume_radio"] .. RadioVolume, "success")
-		exports["pma-voice"]:setRadioVolume(RadioVolume)
-	else
-		QBCore.Functions.Notify(Config.messages["increase_radio_volume"], "error")
-	end
+    if RadioVolume >= 10 then
+        RadioVolume = RadioVolume - 5
+        QBCore.Functions.Notify(Config.messages["volume_radio"] .. RadioVolume, "success")
+        exports["pma-voice"]:setRadioVolume(RadioVolume)
+    else
+        QBCore.Functions.Notify(Config.messages["increase_radio_volume"], "error")
+    end
     cb('ok')
 end)
 

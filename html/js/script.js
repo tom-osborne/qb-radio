@@ -1,3 +1,27 @@
+// Fetch and set NOTIFY_CONFIG from client script callback
+const fetchNotifyConfig = async () => {
+    NOTIFY_CONFIG = await fetchNui("getUIConfig", {}, BrowserMockConfigData);
+    if (isEnvBrowser() || DEV_MODE) {
+        console.log("Fetched Config:");
+        console.dir(NOTIFY_CONFIG);
+    }
+};
+
+const radioUI = async({ data }) => {
+    // Otherwise we process any old MessageEvent with a data property
+    if (data?.action !== "notify") return;
+    // Make sure we have sucessfully fetched out config properly
+    if (!NOTIFY_CONFIG) {
+        console.error(
+            "The notification config did not load properly, trying again for next time"
+        );
+        // Lets check again to see if it exists
+        await fetchNotifyConfig();
+        // If we have a config lets re-run notification with same data, this
+        // isn't recursive though.
+        if (NOTIFY_CONFIG) return radioUI({ data });
+    }
+}
 $(function() {
     window.addEventListener('message', function(event) {
         if (event.data.type == "open") {
@@ -6,6 +30,14 @@ $(function() {
 
         if (event.data.type == "close") {
             QBRadio.SlideDown()
+        }
+
+        if (event.data.type == "showActiveTalker") {
+            QBRadio.ShowActiveTalker()
+        }
+
+        if (event.data.type == "hideActiveTalker") {
+            QBRadio.HideActiveTalker()
         }
     });
 
@@ -86,4 +118,14 @@ QBRadio.SlideDown = function() {
     $(".radio-container").animate({bottom: "-110vh",}, 400, function(){
         $(".container").css("display", "none");
     });
+}
+
+QBRadio.ShowActiveTalker = function() {
+    console.log("SHOW NUI")
+    $("#activeTalker").css("display", "block");
+}
+
+QBRadio.HideActiveTalker = function() {
+    console.log("HIDE NUI")
+    $("#activeTalker").css("display", "none");
 }

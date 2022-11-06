@@ -1,5 +1,10 @@
 Config = {}
 
+Config.ActiveTalkerConfig = {
+    show = true, -- Allow notifications to stack with a badge instead of repeating
+    position = "top-right", -- top-left | top-right | bottom-left | bottom-right | top | bottom | left | right | center
+}
+
 Config.RestrictedChannels = {
     [1] = {
         police = true,
